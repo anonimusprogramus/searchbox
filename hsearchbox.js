@@ -5,15 +5,18 @@
 (function($) {
   function HSearchBox(options){
     var defaults = {
-      url: 'search',
-      param: 'search',
-      dom_id: '#livesearch_result',
+      url: '/search',
+      param: 'query',
+      dom_id: '#livesearch_results',
+      delay: 250,
       minChars: 2,
       loading_css: '#livesearch_loading',
       del_id: '#livesearch_del',
       form_id: '#livesearch_form',
       dataType: 'text',
-      delay: 250
+      onInitSearch: function(){},
+      onStartSearch: function(){},
+      onFinishSearch: function(){}u
     }
 
     this.settings = $.extend({}, defaults, options || {})
@@ -28,12 +31,12 @@
 
     this.start = function() {
       this.loading()
-      $(document).trigger('before.hsearchbox')
+      this.settings.onStartSearch()
     }
 
     this.stop = function() {
       this.idle()
-      $(document).trigger('after.hsearchbox')
+      this.settings.onFinishSearch()
     }
 
     this.kill = function() {
@@ -79,9 +82,9 @@
     }
   }
 
-  $.fn.searchbox = function(configs) {
+  $.fn.hsearchbox = function(configs) {
     var hsearchbox = new HSearchBox(configs)
-    $(document).trigger('init.hsearchbox')
+    hsearchbox.settings.onInitSearch()
     hsearchbox.idle()
 
     return this.each(function() {

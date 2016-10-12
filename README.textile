@@ -2,25 +2,30 @@ h1. Searchbox
 
 This is a jQuery plugin that turns any textbox into a live search, or a "searchbox".
 
+Thank Ryan Heath for his contributing. I edited this plugin to use for multiple textbox and add callbacks. I also renamed it to "hsearchbox" to discern difference between the two plugins.
+
 h3. Usage
 
-<pre><code>$('input.search').searchbox()</code></pre>
+<pre><code>$('input.search').hsearchbox()</code></pre>
 
 That's it, really. There are a few configuration options:
 
 * <code>url</code> - a GET request is sent to this url (default: '/search')
 * <code>param</code> - the actually parameter that gets sent to the server (default: 'query')
-* <code>dom_id</code> - the element that gets updated with the results (default: '#results')
+* <code>dom_id</code> - the element that gets updated with the results (default: '#livesearch_results')
 * <code>delay</code> - the keystroke delay (default: 250 ms)
 * <code>minChars</code> - the minimum characters to process (default: 2)
-* <code>loading_css</code> - the css for an ajax spinner/loading bar (default: '#loading')
+* <code>loading_css</code> - the css for an ajax spinner/loading bar (default: '#livesearch_loading')
 * <code>del_id</code> - the element optional (default: '#livesearch_del')
 * <code>form_id</code> - the element for search form (default: '#livesearch_form')
 * <code>dataType</code> - the datatype for an ajax request (default: 'text')
+* <code>onInitSearch</code> - the callback when init searchbox
+* <code>onStartSearch</code> - the callback when start search
+* <code>onFinishSearch</code> - the callback when finish search
 
 So, customizing each config option might look like this:
 
-<pre><code>$('input.search').searchbox({
+<pre><code>$('input.search').hsearchbox({
   url: '/your/search/url',
   param: 'search',
   dom_id: '#search_results',
@@ -28,7 +33,7 @@ So, customizing each config option might look like this:
 })</code></pre>
 
 Or using with a form:
-<pre><code>$('#search-input').searchbox({
+<pre><code>$('#search-input').hsearchbox({
   url: $('#search_form').attr('action'),
   param: 'search',
   dom_id: '#search_results',
@@ -40,15 +45,29 @@ Or using with a form:
 
 h3. Hooks
 
-There are a few places you can hook into the plugin by binding a function to specific events. Here are the events:
+There are a few callback you can use:
 
-* <code>init.hsearchbox</code> - triggered once when the plugin code executes
-* <code>before.hsearchbox</code> - triggered right before the search is performed
-* <code>after.hsearchbox</code> - triggered right after the search completes
+* <code>onInitSearch</code> - triggered once when the searchbox init
+* <code>onStartSearch</code> - triggered right before the search is performed
+* <code>onFinishSearch</code> - triggered right after the search completes
 
 Here's an example of how to make use of them:
 
-<pre><code>$(document).bind('init.hsearchbox', function() { ... })</code></pre>
+<pre><code>$('#search-input').hsearchbox({
+  url: '/your/search/url',
+  param: 'search',
+  dom_id: '#search_results',
+  ...,
+  onInitSearch: function(){
+    // your code here
+  },
+  onStartSearch: function(){
+    // your code here
+  },
+  onFinishSearch: function(){
+    // your code here
+  }
+})</code></pre>
 
 h3. License
 

@@ -1,77 +1,106 @@
 // Author: Ryan Heath
 // http://rpheath.com
+// Mirs edited
 
 (function($) {
-  $.searchbox = {}
-  
-  $.extend(true, $.searchbox, {
-    settings: {
-      url: '/search',
-      param: 'query',
-      dom_id: '#results',
-      delay: 100,
-      loading_css: '#loading'
-    },
-    
-    loading: function() {
-      $($.searchbox.settings.loading_css).show()
-    },
-    
-    resetTimer: function(timer) {
-      if (timer) clearTimeout(timer)
-    },
-    
-    idle: function() {
-      $($.searchbox.settings.loading_css).hide()
-    },
-    
-    process: function(terms) {
-      var path = $.searchbox.settings.url.split('?'),
-        query = [$.searchbox.settings.param, '=', terms].join(''),
-        base = path[0], params = path[1], query_string = query
-      
-      if (params) query_string = [params.replace('&amp;', '&'), query].join('&')
-      
-      $.get([base, '?', query_string].join(''), function(data) {
-        $($.searchbox.settings.dom_id).html(data)
-      })
-    },
-    
-    start: function() {
-      $(document).trigger('before.searchbox')
-      $.searchbox.loading()
-    },
-    
-    stop: function() {
-      $.searchbox.idle()
-      $(document).trigger('after.searchbox')
+  function HSearchBox(options){
+    var defaults = {
+      url: 'search',
+      param: 'search',
+      dom_id: '#livesearch_result',
+      minChars: 2,
+      loading_css: '#livesearch_loading',
+      del_id: '#livesearch_del',
+      form_id: '#livesearch_form',
+      dataType: 'text',
+      delay: 250
     }
-  })
-  
-  $.fn.searchbox = function(config) {
-    var settings = $.extend(true, $.searchbox.settings, config || {})
-    
-    $(document).trigger('init.searchbox')
-    $.searchbox.idle()
-    
+
+    this.settings = $.extend({}, defaults, options || {})
+
+    this.loading = function() {
+      $(this.settings.loading_css).show()
+    }
+
+    this.idle = function() {
+      $(this.settings.loading_css).hide()
+    }
+
+    this.start = function() {
+      this.loading()
+      $(document).trigger('before.hsearchbox')
+    }
+
+    this.stop = function() {
+      this.idle()
+      $(document).trigger('after.hsearchbox')
+    }
+
+    this.kill = function() {
+      $(this.settings.dom_id).fadeOut(50)
+      $(this.settings.dom_id).html('')
+      $(this.settings.del_id).fadeOut(100)
+    }
+
+    this.reset = function() {
+      $(this.settings.dom_id).html('')
+      $(this.settings.dom_id).fadeOut(50)
+      $(this.settings.form_id).val('')
+      $(this.settings.del_id).fadeOut(100)
+    }
+
+    this.resetTimer = function(timer) {
+      if (timer) clearTimeout(timer)
+    }
+
+    this.process = function(terms) {
+      var currentSearchBox = this
+      if (/\S/.test(terms)) {
+        $.ajax({
+          type: 'GET',
+          dataType : currentSearchBox.settings.dataType,
+          url: currentSearchBox.settings.url,
+          data: {
+            search: terms.trim()
+          },
+          complete: function(data) {
+            $(currentSearchBox.settings.del_id).fadeIn(50)
+            $(currentSearchBox.settings.dom_id).html(data.responseText)
+            if (!$(currentSearchBox.settings.dom_id).is(':empty')) {
+              $(currentSearchBox.settings.dom_id).fadeIn(100)
+            }
+            currentSearchBox.stop()
+          }
+        })
+        return false
+      } else {
+        currentSearchBox.kill()
+      }
+    }
+  }
+
+  $.fn.searchbox = function(configs) {
+    var hsearchbox = new HSearchBox(configs)
+    $(document).trigger('init.hsearchbox')
+    hsearchbox.idle()
+
     return this.each(function() {
       var $input = $(this)
-      
       $input
-      .focus()
-      .ajaxStart(function() { $.searchbox.start() })
-      .ajaxStop(function() { $.searchbox.stop() })
-      .keyup(function() {
-        if ($input.val() != this.previousValue) {
-          $.searchbox.resetTimer(this.timer)
-
-          this.timer = setTimeout(function() {  
-            $.searchbox.process($input.val())
-          }, $.searchbox.settings.delay)
-        
-          this.previousValue = $input.val()
-        }
-      })
+        .keyup(function() {
+          if ($input.val() != this.previousValue) {
+            if (/\S/.test($input.val().trim()) && $input.val().trim().length > hsearchbox.settings.minChars) {
+              hsearchbox.resetTimer(this.timer)
+              this.timer = setTimeout(function() {
+                hsearchbox.start()
+                hsearchbox.process($input.val())
+              }, hsearchbox.settings.delay)
+            } else {
+              hsearchbox.kill()
+            }
+            this.previousValue = $input.val()
+          }
+        })
     })
   }
-})(jQuery);
+})(jQuery)

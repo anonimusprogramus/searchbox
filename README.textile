@@ -11,31 +11,45 @@ That's it, really. There are a few configuration options:
 * <code>url</code> - a GET request is sent to this url (default: '/search')
 * <code>param</code> - the actually parameter that gets sent to the server (default: 'query')
 * <code>dom_id</code> - the element that gets updated with the results (default: '#results')
-* <code>delay</code> - the keystroke delay (default: 100 ms)
+* <code>delay</code> - the keystroke delay (default: 250 ms)
+* <code>minChars</code> - the minimum characters to process (default: 2)
 * <code>loading_css</code> - the css for an ajax spinner/loading bar (default: '#loading')
+* <code>del_id</code> - the element optional (default: '#livesearch_del')
+* <code>form_id</code> - the element for search form (default: '#livesearch_form')
+* <code>dataType</code> - the datatype for an ajax request (default: 'text')
 
 So, customizing each config option might look like this:
 
 <pre><code>$('input.search').searchbox({
   url: '/your/search/url',
-  param: 'q',
-  dom_id: '#thumbnails',
-  delay: 250,
-  loading_css: '#spinner'
+  param: 'search',
+  dom_id: '#search_results',
+  loading_css: '#livesearch_loading'
+})</code></pre>
+
+Or using with a form:
+<pre><code>$('#search-input').searchbox({
+  url: $('#search_form').attr('action'),
+  param: 'search',
+  dom_id: '#search_results',
+  delay: 100,
+  minChars: 3,
+  loading_css: '#livesearch_loading',
+  form_id: '#search_form'
 })</code></pre>
 
 h3. Hooks
 
 There are a few places you can hook into the plugin by binding a function to specific events. Here are the events:
 
-* <code>init.searchbox</code> - triggered once when the plugin code executes
-* <code>before.searchbox</code> - triggered right before the search is performed
-* <code>after.searchbox</code> - triggered right after the search completes
+* <code>init.hsearchbox</code> - triggered once when the plugin code executes
+* <code>before.hsearchbox</code> - triggered right before the search is performed
+* <code>after.hsearchbox</code> - triggered right after the search completes
 
 Here's an example of how to make use of them:
 
-<pre><code>$(document).bind('init.searchbox', function() { ... })</code></pre>
+<pre><code>$(document).bind('init.hsearchbox', function() { ... })</code></pre>
 
 h3. License
 
-(c) 2009 Ryan Heath, released under the MIT license
+(c) 2009 Ryan Heath, released under the MIT license, edited by Hoang Mirs

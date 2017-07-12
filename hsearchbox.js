@@ -16,7 +16,7 @@
       dataType: 'text',
       onInitSearch: function(){},
       onStartSearch: function(){},
-      onFinishSearch: function(){}u
+      onFinishSearch: function(){}
     }
 
     this.settings = $.extend({}, defaults, options || {})
